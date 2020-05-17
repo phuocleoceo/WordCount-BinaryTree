@@ -186,6 +186,7 @@ void Input() {
 }
 //Ham Output
 void Output() {
+	//Sua filepath cua output o day
 	FILE *g = fopen("output.txt", "w");
 	//Xuat ra Console
 	printf("\nBang ket qua \n");
