@@ -12,17 +12,15 @@ typedef struct StructTree *Tree;
 //Bien toan cuc la Cau truc cay,de 2 ham Input va Output khong can khai bao lai
 Tree root = NULL;
 //Ham duyet cay theo LNR va luu vao file
-Tree LNR(Tree root, FILE* g) {
+void LNR(Tree root, FILE* g) {        //Tree LNR
 	if (root != NULL) {
 		LNR(root->Left, g);
-
 		//Xuat ra Console
 		printf("|%10s\t|\t%d\t|\n", root->Word, root->Count);
 		printf("=================================\n");
 		//Xuat ra File
 		fprintf(g, "|%10s\t|\t%d\t|\n", root->Word, root->Count);
 		fprintf(g, "=================================\n");
-
 		LNR(root->Right, g);
 	}
 }
@@ -63,11 +61,9 @@ Tree Search(Tree root, char str[]) {
 	if (root == NULL) return NULL;
 	//Tim thay tu thi tra ve tu
 	if (strcmp(root->Word, str) == 0) return root;
-
 	//Tim Node ben trai
 	Tree p = Search(root->Left, str);
 	if (p != NULL) return p;
-
 	//Tim Node ben phai
 	Tree q = Search(root->Right, str);
 	if (q != NULL) return q;
@@ -80,7 +76,6 @@ int IsAlpha(char c) {
 //Xoa Node khoi cay
 Tree DeleteNode(Tree root, char str[]) {
 	if (root == NULL) return root;
-
 	//Duyet theo Node ben trai de xoa neu Node can xoa(str) nho hon Node hien tai
 	if (strcmp(root->Word, str) > 0)
 		root->Left = DeleteNode(root->Left, str);
@@ -99,70 +94,66 @@ Tree DeleteNode(Tree root, char str[]) {
 			free(root);
 			return p;
 		}
-
 		Tree p = EndLeftNode(root->Right);
 		strcpy(root->Word, p->Word);
 		root->Count = p->Count;
-
 		root->Right = DeleteNode(root->Right, p->Word);
 	}
 	return root;
 }
 //Doc va xu ly
 void Handling(FILE* f) {
-	char Line[79];    //Toi da 80 dong van ban
-	int c;
+	char Line[79];    //Mang dung de luu 1 dong van ban
+	int n, Count;
 	int k = 0;
 	while (fscanf(f, "%s", Line) != EOF ) {
 		//Chuyen tat ca thanh chu hoa , neu muon thanh chu thuong thi dung strlwr
 		strupr(Line);
-		char SingleWord[9];
-		strcpy(SingleWord, "");
+		//Mang luu nhung tu duy nhat (Unique) va khoi tao bang ""
+		char UniqueWord[9];
+		strcpy(UniqueWord, "");
 		for (int i = 0; i < strlen(Line); i++) {
 			if (IsAlpha(Line[i])) {
-				int n = strlen(SingleWord);
-				SingleWord[n] = Line[i];
-				SingleWord[n + 1] = '\0';
+				n = strlen(UniqueWord);
+				UniqueWord[n] = Line[i];
+				UniqueWord[n + 1] = '\0';
 			}
 			if (!IsAlpha(Line[i]) || i == strlen(Line) - 1) {
-				Tree search = Search(root, SingleWord);
+				Tree search = Search(root, UniqueWord);
 				if (search == NULL) {
 					// Dem 100 tu dau tien
 					if (k == 100) break;
 
-					if (strcmp(SingleWord, "") != 0) {
+					if (strcmp(UniqueWord, "") != 0) {
 						k++;
-						root = InsertNode(root, SingleWord, 1);
-						strcpy(SingleWord, "");
+						root = InsertNode(root, UniqueWord, 1);
+						strcpy(UniqueWord, "");
 					}
 				}
 				else {
-					int Count = search->Count;
-					root = DeleteNode(root, SingleWord);
-					root = InsertNode(root, SingleWord, ++Count);
-					strcpy(SingleWord, "");
+					Count = search->Count;
+					root = DeleteNode(root, UniqueWord);
+					root = InsertNode(root, UniqueWord, ++Count);
+					strcpy(UniqueWord, "");
 				}
 			}
 		}
-		strcpy(Line, "");
+		strcpy(Line, "");    //Doc xong 1 Line roi thi khoi tao lai thanh "" de dung cho Line khac
 	}
 }
 //Xu ly nhap tu Console
-void SelectionI() {
+void ReadFromConsole() {
 	printf("Chu y : De ket thuc viec nhap, dua con tro vao mot dong trong roi nhan Ctrl+Z sau do Enter ! \n");
 	printf("*Moi ban nhap van ban vao day : \n\n");
 	Handling(stdin);
 }
 //Xu ly nhap tu File
-void SelectionII() {
-	char filepath[20];
-	printf("Nhap duong dan file input : ");
-	scanf("%s", &filepath);
-	FILE *f = fopen(filepath, "r");
+void ReadFromFile() {
+    FILE *f = fopen("input.txt", "r");
 	//Bao loi khi duong dan khong hop le
 	if (f == NULL) {
-		printf("Loi khi doc File , kiem tra lai duong dan !\n");
-		return;
+		printf("\nLoi khi doc File , kiem tra lai duong dan !\n");
+		exit(1);
 	}
 	Handling(f);
 	fclose(f);
@@ -172,21 +163,18 @@ void Input() {
 	int select;
 	printf("\t\t\t\tChuong trinh thong ke tan suat cac tu trong van ban !\n");
 	printf("1. Nhap tu man hinh Console \n");
-	printf("2. Nhap tu File \n");
+	printf("2. Nhap tu file input.txt \n");
 	do {
 		printf("Chon truong hop : ");
 		scanf("%d", &select);
 		if (select != 1 && select != 2) printf("Chon dung truong hop !\n");
 	} while (select != 1 && select != 2);
-
 	printf("---------------------------------------------------------------------------------------\n");
-	if (select == 1) SelectionI();
-
-	if (select == 2) SelectionII();
+	if (select == 1) ReadFromConsole();
+	if (select == 2) ReadFromFile();
 }
 //Ham Output
 void Output() {
-	//Sua filepath cua output o day
 	FILE *g = fopen("output.txt", "w");
 	//Xuat ra Console
 	printf("\nBang ket qua \n");
@@ -198,10 +186,9 @@ void Output() {
 	fprintf(g, "=================================\n");
 	fprintf(g, "|\tTu\t|    Tan suat\t|\n");
 	fprintf(g, "=================================\n");
-
 	LNR(root, g);
 	fclose(g);
-	printf("\nBang tan suat da duoc luu vao D:\\output.txt");
+	printf("\nBang tan suat da duoc luu vao output.txt");
 }
 int main() {
 	Input();
